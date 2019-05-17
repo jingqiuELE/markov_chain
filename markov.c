@@ -31,11 +31,10 @@ unsigned int hash(char *s[NPREF]) {
     int i;
 
     h = 0;
-    for (i = 0; i < NPREF; i++) {
-        for (p = (unsigned char *) s[i]; *p != '\0'; p++)
+    for (i = 0; i < NPREF; i++)
+        for (p = (unsigned char *)s[i]; *p != '\0'; p++)
             h = ((h << 5) + h) + *p;
-        return h % NHASH;
-    }
+    return h % NHASH;
 }
 
 /* lookup: search for prefix; create if requested. */
@@ -91,8 +90,9 @@ void build(char *prefix[NPREF], FILE *f) {
     char buf[100], fmt[10];
     /* create a format string; %s could overflow buf */
     sprintf(fmt, "%%%ds", (int)(sizeof(buf)-1));
-    while (fscanf(f, fmt, buf) != EOF)
+    while (fscanf(f, fmt, buf) != EOF) {
         add(prefix, strdup(buf));
+    }
 }
 
 char NONWORD[] = "\n"; /* cannot appear as real word. */
@@ -112,9 +112,11 @@ void generate(int nwords) {
         for (suf = sp->suf; suf != NULL; suf = suf->next)
             if (rand() % ++nmatch == 0) /* prob = 1/nmatch */
                 w = suf->word;
-        if (strcmp(w, NONWORD) == 0)
+        if (strcmp(w, NONWORD) == 0) {
+            printf("met NONWORD: prefix[0]=%s prefix[1]=%s\n", prefix[0], prefix[1]);
             break;
-        printf("%s\n", w);
+        }
+        printf("%s ", w);
         memmove(prefix, prefix+1, (NPREF-1)*sizeof(prefix[0]));
         prefix[NPREF-1] = w;
     }
