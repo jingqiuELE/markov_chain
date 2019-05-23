@@ -24,13 +24,12 @@ struct Suffix {    /* list of suffixes. */
 
 State *statetab[NHASH]; /* hash table of states. */
 
-/* hash: compute hash value for array of NPREF strings. */
+/* hash: compute hash value for array of NPREF strings using djb2 algorithm */
 unsigned int hash(char *s[NPREF]) {
     unsigned int h = 5381;
     unsigned char *p;
     int i;
 
-    h = 0;
     for (i = 0; i < NPREF; i++)
         for (p = (unsigned char *)s[i]; *p != '\0'; p++)
             h = ((h << 5) + h) + *p;
@@ -49,8 +48,8 @@ State* lookup(char *prefix[NPREF], int create) {
         for (i = 0; i < NPREF; i++)
             if (strcmp(prefix[i], sp->pref[i]) != 0)
                 break;
-            if (i == NPREF) /* found it. */
-                return sp;
+        if (i == NPREF) /* found it. */
+            return sp;
     }
     if (create) {
         sp = (State *) malloc(sizeof(State));
@@ -97,7 +96,7 @@ void build(char *prefix[NPREF], FILE *f) {
 
 char NONWORD[] = "\n"; /* cannot appear as real word. */
 
-/* generate: produce output, one word per line */
+/* generate: produce output */
 void generate(int nwords) {
     State *sp;
     Suffix *suf;
@@ -112,10 +111,8 @@ void generate(int nwords) {
         for (suf = sp->suf; suf != NULL; suf = suf->next)
             if (rand() % ++nmatch == 0) /* prob = 1/nmatch */
                 w = suf->word;
-        if (strcmp(w, NONWORD) == 0) {
-            printf("met NONWORD: prefix[0]=%s prefix[1]=%s\n", prefix[0], prefix[1]);
+        if (strcmp(w, NONWORD) == 0)
             break;
-        }
         printf("%s ", w);
         memmove(prefix, prefix+1, (NPREF-1)*sizeof(prefix[0]));
         prefix[NPREF-1] = w;
