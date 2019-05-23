@@ -140,7 +140,6 @@ func main() {
 		prefix[i] = NONWORD
 	}
 	build(&prefix, input)
-	fmt.Println("build done")
 	add(&prefix, NONWORD)
 	generate(MAXGEN)
 	return
